@@ -8,8 +8,6 @@ import {
 import { AppError } from "../http/errors";
 import type { ParkingRequestService } from "../services/parking-request-service";
 
-export const WRITE_TOOLS = ["createRequest", "updateRequestStatus"] as const;
-
 const createRequestToolSchema = z.object({
   driverName: z.string().trim().min(1),
   licensePlate: z.string().trim().min(1),
@@ -19,7 +17,7 @@ const createRequestToolSchema = z.object({
   note: z.string().trim().min(1).optional(),
 });
 
-export const searchFiltersSchema = z.object({
+const searchFiltersSchema = z.object({
   status: parkingStatusSchema.optional(),
   truckType: truckTypeSchema.optional(),
   from: z.string().optional().describe("ISO datetime; keep requests that end after this"),
@@ -121,69 +119,4 @@ export function createAssistantTools(service: ParkingRequestService) {
       execute: async (input) => executeAssistantTool(service, "updateRequestStatus", input),
     }),
   };
-}
-
-export function liveFunctionDeclarations() {
-  const statuses = ["pending", "approved", "rejected", "checked_in", "checked_out"];
-  const trucks = ["solo", "semi", "tanker"];
-
-  return [
-    {
-      name: "searchParkingRequests",
-      description:
-        "Search parking requests. Filter by status, truck type, overlapping time window, or stays longer than 12 hours.",
-      parameters: {
-        type: "object",
-        properties: {
-          status: { type: "string", enum: statuses },
-          truckType: { type: "string", enum: trucks },
-          from: { type: "string", description: "ISO datetime; keep requests that end after this" },
-          until: { type: "string", description: "ISO datetime; keep requests that start before this" },
-          unusuallyLong: { type: "boolean", description: "Stays longer than 12 hours" },
-        },
-      },
-    },
-    {
-      name: "getRequestById",
-      description: "Load one parking request by id.",
-      parameters: {
-        type: "object",
-        properties: { id: { type: "string" } },
-        required: ["id"],
-      },
-    },
-    {
-      name: "createRequest",
-      description: "Create a pending parking request.",
-      parameters: {
-        type: "object",
-        properties: {
-          driverName: { type: "string" },
-          licensePlate: { type: "string" },
-          truckType: { type: "string", enum: trucks },
-          requestedFrom: { type: "string", description: "ISO 8601 datetime" },
-          requestedUntil: { type: "string", description: "ISO 8601 datetime" },
-          note: { type: "string" },
-        },
-        required: ["driverName", "licensePlate", "truckType", "requestedFrom", "requestedUntil"],
-      },
-    },
-    {
-      name: "updateRequestStatus",
-      description: "Apply a legal status change. parkingSpotId is required when approving.",
-      parameters: {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-          status: { type: "string", enum: statuses },
-          parkingSpotId: { type: "string" },
-        },
-        required: ["id", "status"],
-      },
-    },
-  ];
-}
-
-export function isWriteTool(name: string): boolean {
-  return (WRITE_TOOLS as readonly string[]).includes(name);
 }

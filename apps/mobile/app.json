@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "CargoVibe Parking",
-    "slug": "cargovibe-parking",
+    "slug": "cargovibe",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,7 +16,8 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
-        "NSMicrophoneUsageDescription": "The assistant uses the microphone for Gemini Live voice."
+        "NSMicrophoneUsageDescription": "The assistant uses the microphone to hear your questions.",
+        "NSSpeechRecognitionUsageDescription": "The assistant converts your speech to text on this device."
       }
     },
     "android": {
@@ -25,7 +26,10 @@
         "backgroundColor": "#ffffff"
       },
       "usesCleartextTraffic": true,
-      "permissions": ["RECORD_AUDIO"]
+      "permissions": [
+        "RECORD_AUDIO"
+      ],
+      "package": "com.genrativeai.cargovibe"
     },
     "web": {
       "bundler": "metro",
@@ -42,10 +46,24 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "The assistant uses the microphone to hear your questions.",
+          "speechRecognitionPermission": "The assistant converts your speech to text on this device."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "52ec5d1b-3ed4-4f45-8361-55e4a044846e"
+      }
+    },
+    "owner": "genrative-ai"
   }
 }

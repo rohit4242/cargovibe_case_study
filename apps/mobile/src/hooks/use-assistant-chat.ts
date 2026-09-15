@@ -1,7 +1,6 @@
 import { parkingKeys } from "@/src/hooks/parking-requests";
 import {
   streamAssistantChat,
-  type ChatToolEvent,
   type ChatTurn,
 } from "@/src/api/assistant-stream";
 import { useQueryClient } from "@tanstack/react-query";
@@ -16,49 +15,6 @@ export function useAssistantChat() {
   const invalidateYard = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: parkingKeys.all });
   }, [queryClient]);
-
-  const addTool = useCallback(
-    (tool: ChatToolEvent) => {
-      if (tool.write && tool.ok) {
-        invalidateYard();
-      }
-      setMessages((current) => {
-        const last = current[current.length - 1];
-        if (last?.role === "assistant") {
-          return [
-            ...current.slice(0, -1),
-            { ...last, tools: [...(last.tools ?? []), tool] },
-          ];
-        }
-        return [
-          ...current,
-          {
-            id: `a-tool-${Date.now()}`,
-            role: "assistant",
-            text: "",
-            tools: [tool],
-          },
-        ];
-      });
-    },
-    [invalidateYard],
-  );
-
-  const appendTranscript = useCallback((role: "user" | "assistant", text: string) => {
-    if (!text) {
-      return;
-    }
-    setMessages((current) => {
-      const last = current[current.length - 1];
-      if (last?.role === role && last.live) {
-        return [...current.slice(0, -1), { ...last, text: last.text + text }];
-      }
-      return [
-        ...current,
-        { id: `${role}-${Date.now()}`, role, text, live: true },
-      ];
-    });
-  }, []);
 
   const send = useCallback(
     async (text: string) => {
@@ -75,10 +31,12 @@ export function useAssistantChat() {
       setPending(true);
       setMessages([...history, assistantTurn]);
 
+      let reply = "";
       try {
         await streamAssistantChat(
           history,
           (streamed) => {
+            reply = streamed;
             setMessages((current) =>
               current.map((turn) =>
                 turn.id === assistantTurn.id ? { ...turn, text: streamed } : turn,
@@ -98,8 +56,10 @@ export function useAssistantChat() {
             );
           },
         );
+        return reply;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Assistant failed");
+        return undefined;
       } finally {
         setPending(false);
       }
@@ -112,8 +72,6 @@ export function useAssistantChat() {
     pending,
     error,
     send,
-    addTool,
-    appendTranscript,
     setError,
   };
 }

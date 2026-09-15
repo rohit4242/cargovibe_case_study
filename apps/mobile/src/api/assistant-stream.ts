@@ -12,7 +12,6 @@ export type ChatTurn = {
   id: string;
   role: "user" | "assistant";
   text: string;
-  live?: boolean;
   tools?: ChatToolEvent[];
 };
 

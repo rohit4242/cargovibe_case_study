@@ -2,7 +2,7 @@ import { ChatComposer } from "@/components/ChatComposer";
 import { MessageBubble } from "@/components/MessageBubble";
 import { Text } from "@/components/ui/text";
 import { useAssistantChat } from "@/src/hooks/use-assistant-chat";
-import { useGeminiLive } from "@/src/hooks/use-gemini-live";
+import { useAssistantVoice } from "@/src/hooks/use-assistant-voice";
 import { useRef, useState } from "react";
 import { ScrollView, View } from "react-native";
 
@@ -10,9 +10,8 @@ export default function AssistantScreen() {
   const [input, setInput] = useState("");
   const scrollRef = useRef<ScrollView>(null);
   const chat = useAssistantChat();
-  const live = useGeminiLive({
-    onTranscript: chat.appendTranscript,
-    onTool: chat.addTool,
+  const voice = useAssistantVoice({
+    send: chat.send,
     onError: chat.setError,
   });
 
@@ -24,7 +23,7 @@ export default function AssistantScreen() {
         contentContainerClassName="gap-3 p-4"
         onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}>
         <Text variant="muted">
-          Ask about the yard, or create and update requests. Voice uses Gemini Live (web).
+          Ask about the yard, or create and update requests. Tap the mic to speak.
         </Text>
 
         {chat.messages.map((turn) => (
@@ -36,7 +35,7 @@ export default function AssistantScreen() {
         ))}
 
         {chat.error ? <Text className="text-destructive">{chat.error}</Text> : null}
-        {live.active ? <Text variant="muted">Listening…</Text> : null}
+        {voice.listening ? <Text variant="muted">Listening…</Text> : null}
       </ScrollView>
 
       <ChatComposer
@@ -44,8 +43,8 @@ export default function AssistantScreen() {
         onChangeText={setInput}
         pending={chat.pending}
         micEnabled
-        micActive={live.active}
-        onMicPress={() => void live.toggle()}
+        micActive={voice.listening}
+        onMicPress={() => void voice.toggle()}
         onSend={() => {
           const text = input;
           setInput("");
