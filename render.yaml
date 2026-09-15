@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: cargovibe-parking-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: GOOGLE_GENERATIVE_AI_API_KEY
+        sync: false

@@ -1,0 +1,10 @@
+{
+  "name": "cargovibe-parking",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "bun run --filter @cargovibe/server dev",
+    "dev:mobile": "bun run --filter @cargovibe/mobile start",
+    "start:server": "bun run --filter @cargovibe/server start"
+  }
+}
