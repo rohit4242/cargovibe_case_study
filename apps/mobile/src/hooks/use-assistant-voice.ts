@@ -14,6 +14,7 @@ export function useAssistantVoice({
   onError: (message: string) => void;
 }) {
   const [listening, setListening] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
 
   useSpeechRecognitionEvent("start", () => setListening(true));
   useSpeechRecognitionEvent("end", () => setListening(false));
@@ -28,7 +29,13 @@ export function useAssistantVoice({
     void send(transcript).then((reply) => {
       const spoken = reply ? speakableText(reply) : "";
       if (spoken) {
-        Speech.speak(spoken, { language: "en-US" });
+        Speech.speak(spoken, {
+          language: "en-US",
+          onStart: () => setSpeaking(true),
+          onDone: () => setSpeaking(false),
+          onStopped: () => setSpeaking(false),
+          onError: () => setSpeaking(false),
+        });
       }
     });
   });
@@ -46,7 +53,14 @@ export function useAssistantVoice({
       return;
     }
 
+    if (speaking) {
+      Speech.stop();
+      setSpeaking(false);
+      return;
+    }
+
     Speech.stop();
+    setSpeaking(false);
     const permission = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
     if (!permission.granted) {
       onError("Allow the microphone and speech recognition to use voice.");
@@ -58,7 +72,7 @@ export function useAssistantVoice({
       interimResults: false,
       continuous: false,
     });
-  }, [listening, onError]);
+  }, [listening, onError, speaking]);
 
-  return { listening, toggle };
+  return { listening, speaking, toggle };
 }

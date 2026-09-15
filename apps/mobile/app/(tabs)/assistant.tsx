@@ -49,7 +49,6 @@ export default function AssistantScreen() {
         ))}
 
         {chat.error ? <Text className="text-destructive">{chat.error}</Text> : null}
-        {voice.listening ? <Text variant="muted">Listening…</Text> : null}
       </ScrollView>
 
       <ChatComposer
@@ -57,7 +56,8 @@ export default function AssistantScreen() {
         onChangeText={setInput}
         pending={chat.pending}
         micEnabled
-        micActive={voice.listening}
+        listening={voice.listening}
+        speaking={voice.speaking}
         onMicPress={() => void voice.toggle()}
         onSend={() => {
           const text = input;

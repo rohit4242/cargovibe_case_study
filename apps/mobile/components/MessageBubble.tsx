@@ -1,27 +1,33 @@
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
-import { inlineParts } from "@/src/lib/chat-text";
+import { parseChatBlocks } from "@/src/lib/chat-text";
 import type { ChatTurn } from "@/src/api/assistant-stream";
 import { View } from "react-native";
 import { ToolResultChip } from "@/components/ToolResultChip";
 
 function ChatFormattedText({ value }: { value: string }) {
-  const blocks = value
-    .split(/\n{2,}/)
-    .map((block) => block.replace(/^\s*[-*]\s+/gm, "").trim())
-    .filter(Boolean);
+  const blocks = parseChatBlocks(value);
 
   return (
-    <View className="gap-2">
-      {blocks.map((block, index) => (
-        <Text key={index}>
-          {inlineParts(block.replace(/\n/g, " ")).map((part, partIndex) => (
-            <Text key={partIndex} className={part.bold ? "font-semibold" : undefined}>
-              {part.text}
-            </Text>
-          ))}
-        </Text>
-      ))}
+    <View className="gap-3">
+      {blocks.map((block, index) =>
+        block.type === "text" ? (
+          <Text key={index}>{block.text}</Text>
+        ) : (
+          <View key={index} className="gap-3">
+            {block.items.map((item, itemIndex) => (
+              <View key={itemIndex} className="gap-0.5">
+                <Text className="font-semibold">
+                  {itemIndex + 1}. {item.title}
+                </Text>
+                {item.detail ? (
+                  <Text variant="muted">{item.detail}</Text>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        ),
+      )}
     </View>
   );
 }
@@ -35,16 +41,18 @@ export function MessageBubble({ turn, thinking }: { turn: ChatTurn; thinking?: b
     );
   }
 
+  const tools = turn.tools?.filter((tool) => tool.write);
+
   return (
     <View
       className={cn(
-        "max-w-[90%] rounded-lg px-3 py-2",
+        "max-w-[90%] rounded-2xl px-3.5 py-2.5",
         turn.role === "user"
           ? "bg-secondary self-end"
           : "bg-card border-border self-start border",
       )}>
       {turn.text ? <ChatFormattedText value={turn.text} /> : null}
-      {turn.tools?.map((tool, index) => (
+      {tools?.map((tool, index) => (
         <ToolResultChip key={`${turn.id}-${index}`} tool={tool} />
       ))}
     </View>
