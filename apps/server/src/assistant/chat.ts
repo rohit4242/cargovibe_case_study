@@ -4,7 +4,7 @@ import {
   streamText,
   type UIMessage,
 } from "ai";
-import { google } from "@ai-sdk/google";
+import { openai } from "@ai-sdk/openai";
 import { AppError } from "../http/errors";
 import { serverEnv } from "../env";
 import { ASSISTANT_SYSTEM_PROMPT } from "./prompt";
@@ -15,16 +15,16 @@ export async function handleAssistantChat(
   body: { messages?: UIMessage[] },
   service: ParkingRequestService,
 ): Promise<Response> {
-  if (!serverEnv.googleApiKey) {
+  if (!serverEnv.openaiApiKey) {
     throw new AppError(
       "VALIDATION_ERROR",
-      "Set GOOGLE_GENERATIVE_AI_API_KEY in apps/server/.env to use the assistant.",
+      "Set OPENAI_API_KEY in apps/server/.env to use the assistant.",
     );
   }
 
   const messages = body.messages ?? [];
   const result = streamText({
-    model: google("gemini-3.6-flash"),
+    model: openai("gpt-4o-mini"),
     system: `${ASSISTANT_SYSTEM_PROMPT}\nCurrent time (ISO): ${new Date().toISOString()}`,
     messages: await convertToModelMessages(messages),
     tools: createAssistantTools(service),

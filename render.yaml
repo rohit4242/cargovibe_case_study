@@ -7,5 +7,5 @@ services:
     envVars:
       - key: CORS_ORIGIN
         value: "*"
-      - key: GOOGLE_GENERATIVE_AI_API_KEY
+      - key: OPENAI_API_KEY
         sync: false

@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.0",
+    "@ai-sdk/openai": "2",
     "@azure/functions": "^4.7.2",
     "@cargovibe/shared": "workspace:*",
     "ai": "^5.0.0",

@@ -14,7 +14,7 @@ Yard data lives in memory (`apps/server/src/data/yard.ts`). A restart restores t
 
 ```bash
 bun install
-cp apps/server/.env.example apps/server/.env   # set GOOGLE_GENERATIVE_AI_API_KEY
+cp apps/server/.env.example apps/server/.env   # set OPENAI_API_KEY
 bun run --filter @cargovibe/server dev         # http://localhost:8787
 bun run --filter @cargovibe/mobile start
 ```
@@ -30,13 +30,13 @@ Long-running Bun process — not Vercel. Use the root `Dockerfile`. Hosts set `P
 
 | Variable | Required | Notes |
 | --- | --- | --- |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | For chat | |
+| `OPENAI_API_KEY` | For chat | [platform.openai.com](https://platform.openai.com/api-keys) — not ChatGPT Pro |
 | `CORS_ORIGIN` | No | Default `*` |
 | `PORT` | No | Render / Railway set this |
 
 Data resets on every deploy, crash, or free-tier sleep.
 
-**Railway (current):** GitHub → Docker (`railway.toml`) → set the Gemini key → public HTTPS domain. Update `apps/mobile/src/config.ts` if the URL changes.
+**Railway (current):** GitHub → Docker (`railway.toml`) → set `OPENAI_API_KEY` → public HTTPS domain. Update `apps/mobile/src/config.ts` if the URL changes.
 
 **Render:** Web Service, Docker, health `/health`, same env. Or apply `render.yaml`.
 
@@ -65,7 +65,7 @@ Transitions: `pending` → `approved` \| `rejected`; `approved` → `checked_in`
 
 Tabs: **Home** (counts + shortcuts, no nav header), **Requests**, **Assistant**. Detail is a stack screen with back.
 
-Assistant: `POST /chat` with Gemini `gemini-2.5-flash` and tools. Mic: on-device STT → same `/chat` → `expo-speech` reads the reply. Key never ships in the app.
+Assistant: `POST /chat` with OpenAI `gpt-4o-mini` and tools. Mic: on-device STT → same `/chat` → `expo-speech` reads the reply. The API key never ships in the app. ChatGPT Pro is not an API key — use a key from [platform.openai.com](https://platform.openai.com/api-keys) with API billing.
 
 Tools (all go through `ParkingRequestService`): `searchParkingRequests`, `getRequestById`, `createRequest`, `updateRequestStatus`. No delete tool. Multi-step: `stopWhen: stepCountIs(6)`.
 
