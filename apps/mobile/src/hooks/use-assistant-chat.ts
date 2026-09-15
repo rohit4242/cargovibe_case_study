@@ -67,11 +67,17 @@ export function useAssistantChat() {
     [invalidateYard, messages, pending],
   );
 
+  const clear = useCallback(() => {
+    setMessages([]);
+    setError(null);
+  }, []);
+
   return {
     messages,
     pending,
     error,
     send,
+    clear,
     setError,
   };
 }

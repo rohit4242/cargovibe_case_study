@@ -1,8 +1,10 @@
 import { ChatComposer } from "@/components/ChatComposer";
 import { MessageBubble } from "@/components/MessageBubble";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useAssistantChat } from "@/src/hooks/use-assistant-chat";
 import { useAssistantVoice } from "@/src/hooks/use-assistant-voice";
+import * as Speech from "expo-speech";
 import { useRef, useState } from "react";
 import { ScrollView, View } from "react-native";
 
@@ -15,6 +17,11 @@ export default function AssistantScreen() {
     onError: chat.setError,
   });
 
+  function clearChat() {
+    Speech.stop();
+    chat.clear();
+  }
+
   return (
     <View className="bg-background flex-1">
       <ScrollView
@@ -22,9 +29,16 @@ export default function AssistantScreen() {
         className="web:mx-auto web:max-w-xl w-full flex-1"
         contentContainerClassName="gap-3 p-4"
         onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}>
-        <Text variant="muted">
-          Ask about the yard, or create and update requests. Tap the mic to speak.
-        </Text>
+        <View className="flex-row items-start justify-between gap-3">
+          <Text variant="muted" className="flex-1">
+            Ask about the yard, or create and update requests. Tap the mic to speak.
+          </Text>
+          {chat.messages.length > 0 ? (
+            <Button variant="ghost" size="sm" onPress={clearChat}>
+              <Text>Clear</Text>
+            </Button>
+          ) : null}
+        </View>
 
         {chat.messages.map((turn) => (
           <MessageBubble

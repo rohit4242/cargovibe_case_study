@@ -3,6 +3,7 @@ import {
   ExpoSpeechRecognitionModule,
   useSpeechRecognitionEvent,
 } from "expo-speech-recognition";
+import { speakableText } from "@/src/lib/chat-text";
 import { useCallback, useState } from "react";
 
 export function useAssistantVoice({
@@ -25,8 +26,9 @@ export function useAssistantVoice({
       return;
     }
     void send(transcript).then((reply) => {
-      if (reply?.trim()) {
-        Speech.speak(reply, { language: "en-US" });
+      const spoken = reply ? speakableText(reply) : "";
+      if (spoken) {
+        Speech.speak(spoken, { language: "en-US" });
       }
     });
   });
