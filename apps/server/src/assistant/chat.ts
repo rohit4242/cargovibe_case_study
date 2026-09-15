@@ -24,7 +24,7 @@ export async function handleAssistantChat(
 
   const messages = body.messages ?? [];
   const result = streamText({
-    model: google("gemini-2.5-flash"),
+    model: google("gemini-3.6-flash"),
     system: `${ASSISTANT_SYSTEM_PROMPT}\nCurrent time (ISO): ${new Date().toISOString()}`,
     messages: await convertToModelMessages(messages),
     tools: createAssistantTools(service),
